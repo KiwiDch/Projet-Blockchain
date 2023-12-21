@@ -38,6 +38,19 @@ void handle_mise_a_jour_election(MiseAJourElectionCmd* cmd){
 
 }
 
+void handle_ajout_vote(AjoutVoteCmd* cmd){
+    printf("ajout vote");
+}
+void handle_supression_vote(SupprimeVoteCmd* cmd){
+    printf("supression vote");
+}
+void handle_lire_vote(LireVoteCmd* cmd){
+    printf("lire vote");
+}
+void handle_mise_a_jour_vote(MiseAJourVoteCmd* cmd){
+    printf("mise a jour vote");
+}
+
 void handle(Commande cmd) {
     switch (cmd.type) {
         case AJOUT_ELECTEUR: {
@@ -57,6 +70,30 @@ void handle(Commande cmd) {
         }
         case MISE_A_JOUR_ELECTEUR: {
             handle_mise_a_jour_electeur(&cmd.commande.miseAJourElecteur);
+        }
+        case AJOUT_ELECTION: {
+            handle_ajout_election(&cmd.commande.ajoutElection);
+        }
+        case SUPPRIME_ELECTION: {
+            handle_supression_election(&cmd.commande.supprimeElection);
+        }
+        case MISE_A_JOUR_ELECTION: {
+            handle_mise_a_jour_election(&cmd.commande.miseAJourElection);
+        }
+        case LIRE_ELECTION: {
+            handle_lire_election(&cmd.commande.lireElection);
+        }
+        case AJOUT_VOTE: {
+            handle_ajout_vote(&cmd.commande.ajoutVote);
+        }
+        case SUPPRIME_VOTE: {
+            handle_supression_vote(&cmd.commande.supprimeVote);
+        }
+        case MISE_A_JOUR_VOTE: {
+            handle_mise_a_jour_vote(&cmd.commande.miseAJourVote);
+        }
+        case LIRE_VOTE: {
+            handle_lire_vote(&cmd.commande.lireVote);
         }
         default: {
             break;
