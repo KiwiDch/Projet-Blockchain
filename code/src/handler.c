@@ -20,6 +20,24 @@ void handle_est_present(EstPresentCmd* cmd) {
     printf("est present");
 }
 
+void handle_ajout_election(AjoutElectionCmd* cmd) {
+    printf("ajout election");
+}
+
+void handle_supression_election(SupprimeElectionCmd* cmd) {
+    printf("supression election");
+}
+
+void handle_lire_election(LireElectionCmd* cmd){
+    printf("lire election");
+
+}
+
+void handle_mise_a_jour_election(MiseAJourElectionCmd* cmd){
+    printf("mise a jour election");
+
+}
+
 void handle(Commande cmd) {
     switch (cmd.type) {
         case AJOUT_ELECTEUR: {
