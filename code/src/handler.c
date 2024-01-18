@@ -30,12 +30,10 @@ void handle_supression_election(SupprimeElectionCmd* cmd) {
 
 void handle_lire_election(LireElectionCmd* cmd){
     printf("lire election");
-
 }
 
 void handle_mise_a_jour_election(MiseAJourElectionCmd* cmd){
     printf("mise a jour election");
-
 }
 
 void handle_ajout_vote(AjoutVoteCmd* cmd){
@@ -99,5 +97,14 @@ void handle(Commande cmd) {
             break;
         }
     }
+}
+
+void* run(void *arg){
+    ProducterConsummer *pc = (ProducterConsummer *) arg;
+    for(int i = 0; i < 10; i++){
+        Commande cmd = consume(pc);
+        handle(cmd);
+    }
+    return NULL;
 }
 
