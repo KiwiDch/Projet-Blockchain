@@ -65,35 +65,46 @@ void handle(Commande cmd) {
         }
         case LIRE_ELECTEUR: {
             handle_lire_electeur(&cmd.commande.lireElecteur);
+	    break;
         }
         case MISE_A_JOUR_ELECTEUR: {
             handle_mise_a_jour_electeur(&cmd.commande.miseAJourElecteur);
+	    break;
         }
         case AJOUT_ELECTION: {
             handle_ajout_election(&cmd.commande.ajoutElection);
+	    break;
         }
         case SUPPRIME_ELECTION: {
             handle_supression_election(&cmd.commande.supprimeElection);
+	    break;
         }
         case MISE_A_JOUR_ELECTION: {
             handle_mise_a_jour_election(&cmd.commande.miseAJourElection);
+	    break;
         }
         case LIRE_ELECTION: {
             handle_lire_election(&cmd.commande.lireElection);
+	    break;
         }
         case AJOUT_VOTE: {
             handle_ajout_vote(&cmd.commande.ajoutVote);
+	    break;
         }
         case SUPPRIME_VOTE: {
             handle_supression_vote(&cmd.commande.supprimeVote);
+	    break;
         }
         case MISE_A_JOUR_VOTE: {
             handle_mise_a_jour_vote(&cmd.commande.miseAJourVote);
+	    break;
         }
         case LIRE_VOTE: {
             handle_lire_vote(&cmd.commande.lireVote);
+	    break;
         }
         default: {
+	    printf("unknown\n");
             break;
         }
     }
@@ -101,7 +112,7 @@ void handle(Commande cmd) {
 
 void* run(void *arg){
     ProducterConsummer *pc = (ProducterConsummer *) arg;
-    for(int i = 0; i < 10; i++){
+    for(int i = 0; i < 10; i++){ //temporaire sinon while(1)
         Commande cmd = consume(pc);
         handle(cmd);
     }

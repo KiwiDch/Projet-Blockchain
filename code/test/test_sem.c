@@ -30,18 +30,15 @@ int main () {
     cmd.type = AJOUT_ELECTEUR;
     strcpy(cmd.signature, "coucou");
     cmd.commande.ajoutElecteur = ajout;
-    printf("prodcuting\n");
-    fflush(stdout);
+    
 
-   /*if(pthread_create(&thread, NULL, run, &pc) != 0){
-        printf("auugh");
+    product(&pc, cmd);
+    if(pthread_create(&thread, NULL, run, &pc) != 0){
+        printf("sauuqsdddgdddh");
         return -1;
-    };*/ 
-
+    };  
     product(&pc, cmd);
     product(&pc, cmd);
-    product(&pc, cmd);
-
 
 
     pthread_join(thread, NULL);
