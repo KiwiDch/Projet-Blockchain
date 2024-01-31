@@ -2,15 +2,15 @@
 #define MESSAGE_H
 
 #include "protocol.h"
-
+#include "crypto.h"
 
 //Election
-typedef struct {
+typedef struct { // a simplfiier, status peut etre determiné
     char identifiant[ENTITY_ID_SIZE];
     char question[256];
     char dateDebut[256];
     char dateFin[256];
-    StatusElection status;
+    //StatusElection status;
 }  AjoutElectionCmd;
 
 typedef struct {
@@ -24,35 +24,7 @@ typedef struct {
 typedef struct {
     char identifiant[ENTITY_ID_SIZE];
     char question[256];
-    char dateDebut[256];
-    char dateFin[256];
-    StatusElection status;
 }  MiseAJourElectionCmd;
-
-//Vote
-typedef struct {
-    char idVotant[ENTITY_ID_SIZE];
-    char idElection[ENTITY_ID_SIZE];
-    char timestamp[256];
-    char bulletin[256];
-    char hashValidation[256];
-}  AjoutVoteCmd;
-
-typedef struct {
-    char identifiant[ENTITY_ID_SIZE];
-}  SupprimeVoteCmd;
-
-typedef struct {
-    char identifiant[ENTITY_ID_SIZE];
-}  LireVoteCmd;
-
-typedef struct {
-    char idVotant[ENTITY_ID_SIZE];
-    char idElection[ENTITY_ID_SIZE];
-    char timestamp[256];
-    char bulletin[256];
-    char hashValidation[256];
-}  MiseAJourVoteCmd;
 
 //Electeur
 
@@ -79,7 +51,15 @@ typedef struct
 typedef struct
 {
     char identifiant[ENTITY_ID_SIZE];
+    char nouveau_identifiant[ENTITY_ID_SIZE];
 } MiseAJourElecteurCmd;
+
+typedef struct {
+    char identifiant_votant[ENTITY_ID_SIZE];
+    char identifiant_election[256];
+    mpz_t bulletin;
+    char hash_validation[256];
+} VoteCmd;
 
 typedef enum
 {
@@ -93,10 +73,7 @@ typedef enum
     SUPPRIME_ELECTION,
     LIRE_ELECTION,
     MISE_A_JOUR_ELECTION,
-    AJOUT_VOTE,
-    SUPPRIME_VOTE,
-    LIRE_VOTE,
-    MISE_A_JOUR_VOTE,
+    VOTE,
 } CommandType;
 
 //--
@@ -115,11 +92,25 @@ typedef struct
         SupprimeElectionCmd supprimeElection;
         LireElectionCmd lireElection;
         MiseAJourElectionCmd miseAJourElection;
-        AjoutVoteCmd ajoutVote;
-        SupprimeVoteCmd supprimeVote;
-        LireVoteCmd lireVote;
-        MiseAJourVoteCmd miseAJourVote;
+        VoteCmd voterElection;
     } commande;
 } Commande;
+
+
+typedef enum {
+    String,
+    AjoutElectionReponse,
+    Stop
+} MessageType;
+
+typedef struct { //message vers l'exterieur
+    MessageType type;
+    union {
+        char msg[256];
+        PublicKey key;
+    } message;
+} Message;
+
+
 
 #endif

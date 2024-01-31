@@ -5,3 +5,5 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+//ecouter avec des sockets ? 

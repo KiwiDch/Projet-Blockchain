@@ -1,6 +1,7 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
-
+#include <stdlib.h>  
+#include <string.h>  
 #define ENTITY_ID_SIZE 256
 
 typedef struct
@@ -14,6 +15,10 @@ typedef enum
     active,
     closed
 } StatusElection;
+
+
+void Status_into_chars(StatusElection status,char* c);
+StatusElection Status_from_chars(char* status);
 
 typedef struct
 {

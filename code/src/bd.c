@@ -102,10 +102,12 @@ void createElecteur(sqlite3 *db, const char *numeroID, int size)
     }
 }
 
-void readElecteur(sqlite3 *db, const char *numeroID, int size)
+Electeur readElecteur(sqlite3 *db, const char *numeroID, int size)
 {
     sqlite3_stmt *stmt;
     const char *sql = "SELECT * FROM Electeur WHERE numeroID = ?;";
+
+    Electeur e;
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK)
     {
@@ -116,6 +118,7 @@ void readElecteur(sqlite3 *db, const char *numeroID, int size)
             // Supposons que numeroID est la première colonne
             const char *id = sqlite3_column_blob(stmt, 0);
             printf("Electeur: %s\n", id);
+            strcpy(e.numeroID, id);
         }
 
         sqlite3_finalize(stmt);
@@ -124,6 +127,8 @@ void readElecteur(sqlite3 *db, const char *numeroID, int size)
     {
         printf("Erreur de préparation: %s\n", sqlite3_errmsg(db));
     }
+
+    return e;
 }
 
 int electeurExists(sqlite3 *db, const char *numeroID, int size)
@@ -281,20 +286,31 @@ int Election_getIdFromNumeroID(sqlite3 *db, const char *numeroID, int size)
 }
 
 // TODO
-void readElection(sqlite3 *db, int id)
+Election readElection(sqlite3 *db, int id)
 {
     sqlite3_stmt *stmt;
     const char *sql = "SELECT * FROM Election WHERE id = ?;";
+
+    Election election;
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, id);
 
-        while (sqlite3_step(stmt) == SQLITE_ROW)
+        if(sqlite3_step(stmt) == SQLITE_ROW){
+            strcpy(election.identifiant, sqlite3_column_text(stmt, 1));
+            strcpy(election.question, sqlite3_column_text(stmt, 2));
+            strcpy(election.dateDebut, sqlite3_column_text(stmt, 3));
+            strcpy(election.dateFin, sqlite3_column_text(stmt, 4));
+            election.status = Status_from_chars(sqlite3_column_text(stmt, 5));
+
+        }
+
+        /*while (sqlite3_step(stmt) == SQLITE_ROW)
         {
             // Traiter les résultats ici
             // Exemple : printf("%s\n", sqlite3_column_text(stmt, 2)); // Pour la colonne 'question'
-        }
+        }*/
 
         sqlite3_finalize(stmt);
     }
@@ -302,6 +318,8 @@ void readElection(sqlite3 *db, int id)
     {
         fprintf(stderr, "Erreur de préparation: %s\n", sqlite3_errmsg(db));
     }
+
+    return election;
 }
 
 void updateElection(sqlite3 *db, int id, const char *question)
