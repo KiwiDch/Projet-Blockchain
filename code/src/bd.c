@@ -302,7 +302,7 @@ Election readElection(sqlite3 *db, int id)
             strcpy(election.question, sqlite3_column_text(stmt, 2));
             strcpy(election.dateDebut, sqlite3_column_text(stmt, 3));
             strcpy(election.dateFin, sqlite3_column_text(stmt, 4));
-            election.status = Status_from_chars(sqlite3_column_text(stmt, 5));
+            election.status = Status_from_chars( (char *) sqlite3_column_text(stmt, 5));
 
         }
 
@@ -322,15 +322,16 @@ Election readElection(sqlite3 *db, int id)
     return election;
 }
 
-void updateElection(sqlite3 *db, int id, const char *question)
+void updateElection(sqlite3 *db, int id, const char *question, const char* status)
 {
     sqlite3_stmt *stmt;
-    const char *sql = "UPDATE Election SET question = ? WHERE id = ?;";
+    const char *sql = "UPDATE Election SET question = ?, status = ? WHERE id = ?;";
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK)
     {
         sqlite3_bind_text(stmt, 1, question, -1, SQLITE_STATIC);
-        sqlite3_bind_int(stmt, 2, id);
+        sqlite3_bind_text(stmt, 2, status, -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 3, id);
 
         if (sqlite3_step(stmt) != SQLITE_DONE)
         {
@@ -399,38 +400,37 @@ void Election_castVote(sqlite3 *db, int idVotant, int idElection, const void *ba
 }
 
 //
-void Election_processVotes(sqlite3 *db, int electionId, int *p_option0, int *p_option1, int *p_totalvotes)
+void Election_processVotes(sqlite3 *db, int electionId, mpz_t resultat_chiffre, int *p_totalvotes)
 {
     sqlite3_stmt *stmt;
     const char *sql = "SELECT * FROM Vote WHERE idElection = ?;";
     *p_totalvotes = 0;
-    *p_option0 = 0;
-    *p_option1 = 0;
+    mpz_inits(resultat_chiffre,NULL);
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK)
     {
         sqlite3_bind_int(stmt, 1, electionId);
-
+        bool premier = true;
         while (sqlite3_step(stmt) == SQLITE_ROW)
         {
             // Récupérer les données de chaque vote
             int voteId = sqlite3_column_int(stmt, 0); // id
             // Autres colonnes peuvent être récupérées ici
-            const void *ballotBlob = sqlite3_column_blob(stmt, 4);
-            int blobSize = sqlite3_column_bytes(stmt, 4);
-            // Traiter les données du vote
-            // printf("Traitement du vote ID: %d\n", voteId);
-            // Ajoutez ici le code pour traiter chaque vote
+            printf("get vote\n");
+            fflush(stdout);
+            char* str_vote = (char*) sqlite3_column_text(stmt, 4);
+            mpz_t vote;
+            mpz_inits(vote,NULL);
+
+            mpz_set_str(vote,str_vote,10);
             *p_totalvotes = *p_totalvotes + 1;
-            int v = *((char *)ballotBlob);
-            if (v)
-            {
-                *p_option1 = *p_option1 + 1;
+            if(!premier){
+                mpz_mul(resultat_chiffre, resultat_chiffre, vote);
             }
-            else
-            {
-                *p_option0 = *p_option0 + 1;
+            else{
+                mpz_set(resultat_chiffre, vote);
             }
+            premier = false;
         }
 
         sqlite3_finalize(stmt);

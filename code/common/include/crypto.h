@@ -4,14 +4,14 @@
 #include <string.h>
 
 typedef struct {
-    mpz_t n;
-    mpz_t g;
+    char n[1028];
+    char g[1028];
 } PublicKey;
 
 typedef struct {
-    mpz_t lambda;
-    mpz_t mu;
-    mpz_t n;
+    char lambda[1028];
+    char mu[1028];
+    char n[1028];
 } PrivateKey;
 
 typedef struct {

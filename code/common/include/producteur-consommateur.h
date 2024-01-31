@@ -4,7 +4,7 @@
 #include <semaphore.h>
 #include "messages.h"
 
-#define SIZE 2048
+#define SIZE 4098
 
 typedef struct {
     sem_t plein;

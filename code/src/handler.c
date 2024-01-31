@@ -103,7 +103,7 @@ Message handle_ajout_election(HandlerContext* context, AjoutElectionCmd* cmd){
 
     //generation clé
     KeyPair* keypair = malloc(sizeof(KeyPair));
-    generate_KeyPair(keypair, 2048);
+    generate_KeyPair(keypair, 200);
 
     pthread_mutex_lock(context->keys_mutex);
     g_hash_table_insert(context->keys,g_strdup(cmd->identifiant), keypair);
@@ -146,7 +146,9 @@ Message handle_lire_election(HandlerContext* context, LireElectionCmd* cmd){
 void handle_mise_a_jour_election(HandlerContext* context, MiseAJourElectionCmd* cmd){
     pthread_mutex_lock(context->db_mutex);
     int id = Election_getIdFromNumeroID(context->db, cmd->identifiant, strlen(cmd->identifiant));
-    updateElection(context->db, id, cmd->question);
+    char status[10];
+    Status_into_chars(cmd->status, status);
+    updateElection(context->db, id, cmd->question, status);
     pthread_mutex_unlock(context->db_mutex);
 
     printf("mise a jour election");
@@ -175,9 +177,52 @@ Message handle_voter_election(HandlerContext* context, VoteCmd* cmd){
     const char* hash;
     hash = cmd->hash_validation;
 
-    Election_castVote(context->db, id, id_election, (void *) &cmd->bulletin, sizeof(mpz_t), hash);
+    gmp_printf("vote (serveur): %sd\n", cmd->bulletin);
+
+    Election_castVote(context->db, id, id_election, (void *) &cmd->bulletin, strlen(cmd->bulletin), hash);
     pthread_mutex_unlock(context->db_mutex);
     return write_message("a voter");
+}
+
+Message handler_resultat_election(HandlerContext* context, ResultatElectionCmd* cmd) {
+    Resultat rslt;
+
+    pthread_mutex_lock(context->db_mutex);
+    int id_election = Election_getIdFromNumeroID(context->db, cmd->identifiant_election, strlen(cmd->identifiant_election));
+    if(id_election == -1){
+        return write_message("Election inexistant");
+    }
+
+    Election e = readElection(context->db,id_election);
+    char status[10];
+    Status_into_chars(closed, status);
+
+    if(e.status != active){
+        updateElection(context->db, id_election, e.question, status); //On ferme l'election
+    }
+
+    mpz_t resultat_chiffre, choix1;
+    int total_vote;
+
+    Election_processVotes(context->db,id_election,resultat_chiffre,&total_vote);
+    pthread_mutex_unlock(context->db_mutex);
+
+    //On recupere la clé privé
+    pthread_mutex_lock(context->keys_mutex);
+    KeyPair* key = g_hash_table_lookup(context->keys, e.identifiant);
+    if(key == NULL){
+        return write_message("La pair de clé a été perdu");
+    }
+;
+    decrypt_vote(&key->private, resultat_chiffre,choix1);
+    rslt.choix1 = mpz_get_ui(choix1);
+    rslt.total = total_vote;
+    pthread_mutex_unlock(context->keys_mutex);
+
+    Message m;
+    m.type = ResultatElection;
+    m.message.resultat = rslt;
+    return m;
 }
 
 Message handle(HandlerContext* context, Commande cmd) {
@@ -226,6 +271,9 @@ Message handle(HandlerContext* context, Commande cmd) {
         }
         case VOTE: {
             return handle_voter_election(context, &cmd.commande.voterElection);
+        }
+        case RESULTAT_ELECTION: {
+            return handler_resultat_election(context, &cmd.commande.resultatElection);
         }
         default: {
 	        printf("unknown\n");

@@ -24,6 +24,7 @@ typedef struct {
 typedef struct {
     char identifiant[ENTITY_ID_SIZE];
     char question[256];
+    StatusElection status;
 }  MiseAJourElectionCmd;
 
 //Electeur
@@ -57,9 +58,13 @@ typedef struct
 typedef struct {
     char identifiant_votant[ENTITY_ID_SIZE];
     char identifiant_election[256];
-    mpz_t bulletin;
+    char bulletin[2048];
     char hash_validation[256];
 } VoteCmd;
+
+typedef struct {
+    char identifiant_election[256];
+} ResultatElectionCmd;
 
 typedef enum
 {
@@ -73,6 +78,7 @@ typedef enum
     SUPPRIME_ELECTION,
     LIRE_ELECTION,
     MISE_A_JOUR_ELECTION,
+    RESULTAT_ELECTION,
     VOTE,
 } CommandType;
 
@@ -93,6 +99,7 @@ typedef struct
         LireElectionCmd lireElection;
         MiseAJourElectionCmd miseAJourElection;
         VoteCmd voterElection;
+        ResultatElectionCmd resultatElection;
     } commande;
 } Commande;
 
@@ -100,14 +107,21 @@ typedef struct
 typedef enum {
     String,
     AjoutElectionReponse,
+    ResultatElection,
     Stop
 } MessageType;
+
+typedef struct {
+    unsigned int choix1;
+    int total;
+} Resultat;
 
 typedef struct { //message vers l'exterieur
     MessageType type;
     union {
         char msg[256];
         PublicKey key;
+        Resultat resultat;
     } message;
 } Message;
 

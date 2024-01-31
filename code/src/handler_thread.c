@@ -74,8 +74,6 @@ bool spawn_handler(ThreadHandler* handler){
     }
     
     futureInit(future, run, &handler->arguments);
-    printf("inited");
-    fflush(stdout);
     return submitTaskToPool(&handler->pool, future);
 }
 

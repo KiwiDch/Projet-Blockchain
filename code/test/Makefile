@@ -8,7 +8,7 @@ PROJECTLIB=-lvoting
 
 $(shell mkdir -p $(BUILDDIR))
 
-all: $(BUILDDIR)/test_electeur $(BUILDDIR)/test_election $(BUILDDIR)/test_vote $(BUILDDIR)/main $(BUILDDIR)/test_crypto2 $(BUILDDIR)/test_election_vote $(BUILDDIR)/test_date
+all: $(BUILDDIR)/test_electeur $(BUILDDIR)/test_election $(BUILDDIR)/main $(BUILDDIR)/test_crypto2 $(BUILDDIR)/test_election_vote $(BUILDDIR)/test_date
 
 
 $(BUILDDIR)/test_electeur: test_electeur.c
@@ -16,9 +16,6 @@ $(BUILDDIR)/test_electeur: test_electeur.c
 
 $(BUILDDIR)/test_election: test_election.c
 	$(CC) test_election.c $(CFLAGS) $(PROJECTLIBDIR) $(PROJECTLIB) $(LIBS) -o $(BUILDDIR)/test_election
-
-$(BUILDDIR)/test_vote: test_vote.c
-	$(CC) test_vote.c $(CFLAGS) $(PROJECTLIBDIR) $(PROJECTLIB) $(LIBS) -o $(BUILDDIR)/test_vote
 
 $(BUILDDIR)/main: main.c
 	$(CC) main.c $(CFLAGS) $(PROJECTLIBDIR) $(PROJECTLIB) $(LIBS) -o $(BUILDDIR)/main
@@ -36,4 +33,4 @@ $(BUILDDIR)/test_date: test_date.c
 	$(CC) test_date.c $(CFLAGS) $(PROJECTLIBDIR) $(PROJECTLIB) $(LIBS) -o $(BUILDDIR)/test_date
 
 clean:
-	rm $(BUILDDIR)/test_vote; rm $(BUILDDIR)/test_election; rm $(BUILDDIR)/test_electeur 
+	rm $(BUILDDIR)/test_election; rm $(BUILDDIR)/test_electeur 

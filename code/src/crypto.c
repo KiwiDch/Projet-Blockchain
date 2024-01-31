@@ -22,25 +22,39 @@ void generateRandomPrimes(mpz_t p, mpz_t q, unsigned int bitLength) {
     gmp_randclear(state);
 }
 void generate_KeyPair(KeyPair* key, unsigned int bit_length) {
+    mpz_t n,lambda,g,mu;
+    mpz_inits(n, lambda, g, mu, NULL);
+    generate_keys(n, lambda, g, mu, bit_length);
 
-    mpz_inits(key->public.n,key->private.n, key->private.lambda, key->public.g, key->private.mu, NULL);
-    generate_keys(key->public.n, key->private.lambda, key->public.g, key->private.mu, bit_length);
+    mpz_get_str(key->public.n, 10,n);
+    mpz_get_str(key->private.n, 10,n);
+    mpz_get_str(key->private.mu, 10, mu);
+    mpz_get_str(key->private.lambda, 10, lambda);
+    mpz_get_str(key->public.g, 10, g);
 
-    memcpy(key->private.n,key->public.n, sizeof(mpz_t));
 }
 
 
 void encrypt_vote(PublicKey* key, int vote, mpz_t c) {
-    mpz_t m; 
-    mpz_inits(m,c, NULL);
+    mpz_t m,n,g; 
+    mpz_inits(m,c,n,g, NULL);
 
     mpz_set_ui(m, vote);
-    encrypt(c, m, key->n, key->g);
+    fflush(stdout);
+    mpz_set_str(n,key->n,10);
+    mpz_set_str(g,key->g,10);
+    fflush(stdout);
+    encrypt(c, m, n, g);
 }
 
 void decrypt_vote(PrivateKey* key, mpz_t c, mpz_t m){
-    mpz_inits(m, NULL);
-    decrypt(m, c, key->lambda, key->mu, key->n);
+    mpz_t n,mu,lambda;
+    mpz_inits(n,m,lambda,mu, NULL);
+    mpz_set_str(n,key->n,10);
+    mpz_set_str(mu,key->mu,10);
+    mpz_set_str(lambda,key->lambda,10);
+
+    decrypt(m, c, lambda, mu, n);
 }
 
 // Key generation

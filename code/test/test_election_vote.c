@@ -10,6 +10,8 @@
 
 #include <unistd.h>
 
+//Ce test simule une election, il faut que la base de donnée soit supprimé
+
 ProducterConsummer pc;
 ProducterConsummer message;
 ThreadHandler handler;
@@ -17,12 +19,14 @@ ThreadHandler handler;
 Commande cmdelection;
 Commande cmdelecteur;
 Commande cmdvote;
+Commande cmdresultat;
+Commande cmdstop;
 
-Commande* cmd[3];
+Commande* cmd[5];
 
 void* emission(void * arg) {
 
-    for(int i = 0; i< 3; i++){
+    for(int i = 0; i< 5; i++){
         if(spawn_handler(&handler) != true){
             printf("probleme\n");
             fflush(stdout);
@@ -48,11 +52,14 @@ void debug_print(Message* m) {
 
             mpz_t c;
             encrypt_vote(&m->message.key, 1,c);
-            memcpy(cmdvote.commande.voterElection.bulletin, c, sizeof(mpz_t));
+            mpz_get_str(cmdvote.commande.voterElection.bulletin,10,c);
 
-            printf("vote: %Zd", cmdvote.commande.voterElection.bulletin);
+            printf("vote: %sd", cmdvote.commande.voterElection.bulletin);
             fflush(stdout);
 
+            break;
+        case ResultatElection:
+            printf("nb de choix 1: %ld sur %i votes\n", m->message.resultat.choix1, m->message.resultat.total);
             break;
         case Stop:
             printf("STOP");
@@ -108,11 +115,21 @@ int main(){
     strcpy(vote.hash_validation, "hash");
     cmdvote.commande.voterElection = vote;
 
+    cmdresultat.type = RESULTAT_ELECTION;
+    strcpy(cmdresultat.signature, "coucou");
+    ResultatElectionCmd rslt;
+    strcpy(rslt.identifiant_election, "coucou");
+    cmdresultat.commande.resultatElection = rslt;
+
+    cmdstop.type = NOP;
+
     cmd[0] = &cmdelecteur;
     cmd[1] = &cmdelection;
     cmd[2] = &cmdvote;
+    cmd[3] = &cmdresultat;
+    cmd[4] = &cmdstop;
 
-    if(init_ThreadHandler(&handler,5,10,"bd.sqlite",&pc,&message) == false){
+    if(init_ThreadHandler(&handler,5,10,":memory:",&pc,&message) == false){
         printf("probleme de thread\n");
         fflush(stdout);
         return -1;
@@ -121,12 +138,12 @@ int main(){
     pthread_t thread,thread_messages;
     
     if(pthread_create(&thread_messages, NULL, reception, NULL) != 0){
-        printf("saduuqsddddddsdddqsddddgdsdddh");
+        printf("erreur");
         return -1;
     };
 
     if(pthread_create(&thread, NULL, emission, NULL) != 0){
-        printf("sauuqsdddsddqsdddgsdddh");
+        printf("erreur");
         return -1;
     };
 

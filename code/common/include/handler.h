@@ -10,7 +10,6 @@
 #include <stdbool.h>
 
 
-
 typedef struct {
 	sqlite3* db;
 	pthread_mutex_t* db_mutex;
@@ -47,6 +46,7 @@ Message handle_lire_election(HandlerContext* context, LireElectionCmd* cmd);
 void handle_mise_a_jour_election(HandlerContext* context, MiseAJourElectionCmd* cmd);
 
 Message handle_voter_election(HandlerContext* context, VoteCmd* cmd);
+Message handler_resultat_election(HandlerContext* context, ResultatElectionCmd* cmd);
 /*void handle_ajout_vote(HandlerContext* context, AjoutVoteCmd* cmd);
 void handle_supression_vote(HandlerContext* context, SupprimeVoteCmd* cmd);
 void handle_lire_vote(HandlerContext* context, LireVoteCmd* cmd);
